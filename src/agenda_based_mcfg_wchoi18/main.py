@@ -55,7 +55,7 @@ C(that)
 """
 
 def main():
-    rules = [MCFGRule.from_string(line.strip()) for line in TEST_RULES.splitlines() if '->' in line or '(' in line]
+    rules = [MCFGRule.from_string(line.strip()) for line in TEST_RULES.splitlines() if '(' in line]
     grammar = MCFGGrammar(alphabet={'which', 'who', 'the', 'a', 'greyhound', 'human', 
                                     'believes', 'believe', 'does', 'that'},
                              variables={'S', 'Sbar', 'Sbarwh', 'Swhmain', 'Swhemb', 

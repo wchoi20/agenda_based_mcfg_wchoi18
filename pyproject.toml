@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "agenda_based_mcfg_wchoi18"
-version = "0.0.2"
+version = "0.0.3"
 authors = [
   { name="Woo Jin Choi", email="wchoi18@ur.rochester.edu" },
 ]
@@ -19,4 +19,4 @@ license = "MIT"
 license-files = ["LICEN[CS]E*"]
 
 [project.urls]
-Homepage = "https://github.com/wchoi20/ling424_final_project"
+Homepage = "https://github.com/wchoi20/agenda_based_mcfg_wchoi18"

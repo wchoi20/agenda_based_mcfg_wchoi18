@@ -140,6 +140,8 @@ class Tree:
     def from_list(cls, treelist: TreeList) -> 'Tree':
         if isinstance(treelist, str):
             return cls(treelist[0])
+        elif len(treelist) == 1:
+            return cls(treelist[0])
         elif isinstance(treelist[1], str):
             return cls(treelist[0], [cls(treelist[1])])
         else:

@@ -1,5 +1,5 @@
 import pytest
-from agenda_based_mcfg_wchoi18.grammar import MCFGRuleElementInstance # type: ignore
+from agenda_based_mcfg_wchoi18.grammar import MCFGRuleElementInstance, MCFGRule, MCFGGrammar # type: ignore
 from agenda_based_mcfg_wchoi18.parser import MCFGChartEntry, MCFGChart, AgendaBasedMCFGParser # type: ignore
 
 class TestMCFGChartEntry:
@@ -77,3 +77,77 @@ class TestMCFGChart:
         trees = chart.parses
         assert len(trees) == 1
         assert all(t.data == "S" for t in trees)
+
+
+class TestAgendaBasedMCFGParser:
+
+    @pytest.fixture
+    def test_grammar(self):
+        test_rules = """
+            S(uv) -> NP(u) VP(v)
+            S(uv) -> NPwh(u) VP(v)
+            S(vuw) -> Aux(u) Swhmain(v, w)
+            S(uwv) -> NPdisloc(u, v) VP(w)
+            S(uwv) -> NPwhdisloc(u, v) VP(w)
+            Sbar(uv) -> C(u) S(v)
+            Sbarwh(v, uw) -> C(u) Swhemb(v, w)
+            Sbarwh(u, v) -> NPwh(u) VP(v)
+            Swhmain(v, uw) -> NP(u) VPwhmain(v, w)
+            Swhmain(w, uxv) -> NPdisloc(u, v) VPwhmain(w, x)
+            Swhemb(v, uw) -> NP(u) VPwhemb(v, w)
+            Swhemb(w, uxv) -> NPdisloc(u, v) VPwhemb(w, x)
+            Src(v, uw) -> NP(u) VPrc(v, w)
+            Src(w, uxv) -> NPdisloc(u, v) VPrc(w, x)
+            Src(u, v) -> N(u) VP(v)
+            Swhrc(u, v) -> Nwh(u) VP(v)
+            Swhrc(v, uw) -> NP(u) VPwhrc(v, w)
+            Sbarwhrc(v, uw) -> C(u) Swhrc(v, w)
+            VP(uv) -> Vpres(u) NP(v)
+            VP(uv) -> Vpres(u) Sbar(v)
+            VPwhmain(u, v) -> NPwh(u) Vroot(v)
+            VPwhmain(u, wv) -> NPwhdisloc(u, v) Vroot(w)
+            VPwhmain(v, uw) -> Vroot(u) Sbarwh(v, w)
+            VPwhemb(u, v) -> NPwh(u) Vpres(v)
+            VPwhemb(u, wv) -> NPwhdisloc(u, v) Vpres(w)
+            VPwhemb(v, uw) -> Vpres(u) Sbarwh(v, w)
+            VPrc(u, v) -> N(u) Vpres(v)
+            VPrc(v, uw) -> Vpres(u) Nrc(v, w)
+            VPwhrc(u, v) -> Nwh(u) Vpres(v)
+            VPwhrc(v, uw) -> Vpres(u) Sbarwhrc(v, w)
+            NP(uv) -> D(u) N(v)
+            NP(uvw) -> D(u) Nrc(v, w)
+            NPdisloc(uv, w) -> D(u) Nrc(v, w)
+            NPwh(uv) -> Dwh(u) N(v)
+            NPwh(uvw) -> Dwh(u) Nrc(v, w)
+            NPwhdisloc(uv, w) -> Dwh(u) Nrc(v, w)
+            Nrc(v, uw) -> C(u) Src(v, w)
+            Nrc(u, vw) -> N(u) Swhrc(v, w)
+            Nrc(u, vwx) -> Nrc(u, v) Swhrc(w, x)
+            Dwh(which)
+            NPwh(who)
+            D(the)
+            D(a)
+            N(greyhound)
+            N(human)
+            Vpres(believes)
+            Vroot(believe)
+            Aux(does)
+            C(that)
+        """
+        rules = [MCFGRule.from_string(line.strip()) for line in test_rules.splitlines() if '(' in line]
+
+        return MCFGGrammar(
+            alphabet={"which", "who", "the", "a", "greyhound", "human", "believes", "believe", "does", "that"},
+            variables={"S", "Sbar", "Sbarwh", "Swhmain", "Swhemb", "Src", "Swhrc", "VP", "VPwhmain", "VPwhemb",
+                    "VPrc", "VPwhrc", "NP", "NPdisloc", "NPwh", "Nrc"},
+            rules=set(rules),
+            start_variable='S'
+        )
+
+    def test_parser(self, test_grammar):
+        parser = AgendaBasedMCFGParser(test_grammar)
+        tokens = ["who", "does", "the", "greyhound", "believe"]
+        trees = parser.parse(tokens)
+        assert len(trees) > 0
+        for tree in trees:
+            assert tree.data == "S"
