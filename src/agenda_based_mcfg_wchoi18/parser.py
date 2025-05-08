@@ -1,5 +1,3 @@
-### parser/agenda_parser.py
-
 from collections import deque, defaultdict
 from agenda_based_mcfg_wchoi18.grammar import MCFGRuleElementInstance, MCFGGrammar, MCFGRule
 from agenda_based_mcfg_wchoi18.tree import Tree
@@ -10,46 +8,138 @@ SpanIndices = Tuple[int, ...]
 SpanMap = dict[int, SpanIndices]
 
 class MCFGChartEntry:
+    """
+    Represents a single entry in the MCFG chart.
+    
+    Parameters
+    ----------
+    instance : MCFGRuleElementInstance
+    rule : MCFGRule, optional
+    backpointers : list[MCFGChartEntry], optional
+    
+    Attributes
+    ----------
+    instance : MCFGRuleElementInstance
+    rule : MCFGRule
+    backpointers : list[MCFGChartEntry]
+    """
     def __init__(self, instance, rule=None, backpointers=None):
         self.instance = instance
         self.rule = rule
         self.backpointers = backpointers or []
 
-    def __hash__(self):
+    def __hash__(self) -> int:
+        """
+        Return a hash value of the instance.
+
+        Returns
+        -------
+        int
+            The hash value of the instance.
+        """
         return hash(self.instance)
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
+        """
+        Check if two entries are equal based on their instance.
+        
+        Parameters
+        ----------
+        other : MCFGChartEntry
+            The other entry to compare with.
+
+        Returns
+        -------
+        bool
+            True if the entries are equal, False otherwise.
+        """
         return self.instance == other.instance
 
     @property
-    def symbol(self):
+    def symbol(self) -> str:
+        """
+        Return the symbol of the entry.
+
+        Returns
+        -------
+        str
+            The symbol of the entry.
+        """
         return self.instance.variable
 
     @property
-    def spans(self):
+    def spans(self) -> SpanIndices:
+        """
+        Return the spans of the entry.
+        
+        Returns
+        -------
+        SpanIndices
+            The spans of the entry.
+        """
         return self.instance.string_spans
 
     def to_tree(self) -> Tree:
+        """
+        Convert the entry to a tree representation.
+        
+        Returns
+        -------
+        Tree
+            A tree representation of the entry.
+        """
         children = [d.to_tree() for d in self.backpointers]
         return Tree(self.symbol, children)
 
 
 class MCFGChart:
+    """
+    Represents the MCFG chart, which stores entries and allows for retrieval.
+
+    Attributes
+    ----------
+    entries : dict, optional
+        A dictionary of entries, default is an empty dictionary.
+    """
     def __init__(self):
         self._entries = defaultdict(set)
 
-    def _key(self, entry: MCFGChartEntry):
+    def _key(self, entry: MCFGChartEntry) -> Tuple[str, SpanIndices]:
         return (entry.symbol, entry.spans)
 
     def add(self, entry: MCFGChartEntry):
+        """
+        Add an entry to the chart.
+        """
         key = self._key(entry)
         self._entries[key].add(entry)
 
-    def get_by_symbol(self, symbol: str):
+    def get_by_symbol(self, symbol: str) -> list[MCFGChartEntry]:
+        """
+        Get entries by symbol.
+        
+        Parameters
+        ----------
+        symbol : str
+            The symbol to search for in the chart.
+
+        Returns
+        -------
+        list[MCFGChartEntry]
+            A list of entries that match the given symbol.
+        """
         return [entry for (sym, _), entries in self._entries.items() if sym == symbol for entry in entries]
     
     @property
-    def parses(self):
+    def parses(self) -> set[Tree]:
+        """
+        Get all parses in the chart.
+
+        Returns
+        -------
+        set[Tree]
+            A set of trees representing the parses in the chart.
+        """
         return {
             entry.to_tree()
             for (sym, _), entries in self._entries.items()
@@ -59,12 +149,40 @@ class MCFGChart:
 
 
 class AgendaBasedMCFGParser:
+    """
+    Implements the agenda-based MCFG parser.
+
+    Parameters
+    ----------
+    grammar : MCFGGrammar
+
+    Attributes
+    ----------
+    grammar : MCFGGrammar
+    chart : MCFGChart
+    agenda : deque
+    """
+
     def __init__(self, grammar: MCFGGrammar):
         self.grammar = grammar
         self.chart = MCFGChart()
         self.agenda = deque()
 
-    def parse(self, tokens: list[str]):
+    def parse(self, tokens: list[str]) -> set[Tree]:
+        """
+        Parse the input tokens using the MCFG grammar.
+
+        Parameters
+        ----------
+        tokens : list[str]
+            The input tokens to be parsed.
+
+        Returns
+        -------
+        set[Tree]
+            A set of trees representing the parses of the input tokens.
+        """
+
         self.tokens = tokens
         self._initialize_agenda()
 
@@ -77,9 +195,8 @@ class AgendaBasedMCFGParser:
         return self.chart.parses
 
     def _initialize_agenda(self):
-        # Step 1: Add all terminal epsilon rules matching tokens as axioms
+
         for i, token in enumerate(self.tokens):
-            # print(f"Processing token: {token} at position {i}")
             for rule in self.grammar.rules:
                 if rule.is_epsilon:
                     terminal = rule.left_side.string_variables[0][0]

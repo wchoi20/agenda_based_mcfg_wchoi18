@@ -20,9 +20,9 @@ class TestMCFGRuleElement:
         assert str(element) == "NP(0, 1)"
 
     def test_eq(self):
-        e1 = MCFGRuleElement("X", (0,), (1,))
-        e2 = MCFGRuleElement("X", (0,), (1,))
-        e3 = MCFGRuleElement("X", (1,), (0,))
+        e1 = MCFGRuleElement("NP", (0,), (1,))
+        e2 = MCFGRuleElement("NP", (0,), (1,))
+        e3 = MCFGRuleElement("NP", (1,), (0,))
         assert e1 == e2
         assert e1 != e3
 
@@ -39,7 +39,7 @@ class TestMCFGRuleElement:
         assert element.string_variables == ((0,), (1,))
 
     def test_property_unique_string_variables(self):
-        e = MCFGRuleElement("VP", (1,), (3,), (1,))
+        e = MCFGRuleElement("NP", (1,), (3,), (1,))
         assert e.unique_string_variables == {1, 3}
 
 class TestMCFGRuleElementInstance:
@@ -88,7 +88,7 @@ class TestMCFGRule:
         assert [e.variable for e in simple_rule.right_side] == ["NP", "VP"]
 
     def test_is_epsilon(self):
-        lhs = MCFGRuleElement("X", (0,))
+        lhs = MCFGRuleElement("NP", (0,))
         rule = MCFGRule(lhs)
         assert rule.is_epsilon
 

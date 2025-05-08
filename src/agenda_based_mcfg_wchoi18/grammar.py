@@ -1,5 +1,3 @@
-### grammar/grammar.py
-
 from typing import Tuple
 from functools import lru_cache
 import re
@@ -29,6 +27,14 @@ class MCFGRuleElement:
         self._string_variables = string_variables
 
     def __str__(self) -> str:
+        """
+        Return a string representation of the MCFGRuleElement.
+
+        Returns
+        -------
+        str
+            String representation of the MCFGRuleElement.
+        """
         strvars = ', '.join(
             ''.join(str(v) for v in vtup)
             for vtup in self._string_variables
@@ -37,27 +43,79 @@ class MCFGRuleElement:
         return f"{self._variable}({strvars})"
 
     def __eq__(self, other) -> bool:
+        """
+        Check if two MCFGRuleElements are equivalent.
+
+        Parameters
+        ----------
+        other : MCFGRuleElement
+            The other MCFGRuleElement to compare with.
+
+        Returns
+        -------
+        bool
+            True if the two MCFGRuleElements are equivalent, False otherwise.
+        """
         vareq = self._variable == other._variable
         strvareq = self._string_variables == other._string_variables
         
         return vareq and strvareq
         
     def to_tuple(self) -> tuple[str, tuple[StringVariables, ...]]:
+        """
+        Convert the rule element to a tuple.
+
+        Returns
+        -------
+        tuple
+            A tuple containing the variable and its string variable tuples.
+        """
         return (self._variable, self._string_variables)
 
     def __hash__(self) -> int:
+        """
+        Return a hash value for the rule element.
+
+        Returns
+        -------
+        int
+            Hash value of the MCFGRuleElement.
+        """
         return hash(self.to_tuple())
         
     @property
     def variable(self) -> str:
+        """
+        Return the variable of the rule element.
+
+        Returns
+        -------
+        str
+            The variable of the rule element.
+        """
         return self._variable
 
     @property
     def string_variables(self) -> tuple[StringVariables, ...]:
+        """
+        Return string variables used in the rule.
+
+        Returns
+        -------
+        tuple of string variables
+            Grouped index positions of substrings.
+        """
         return self._string_variables
 
     @property    
     def unique_string_variables(self) -> set[int]:
+        """
+        Return unique string variable indices.
+
+        Returns
+        -------
+        set of int
+        """
         return {
             i
             for tup in self.string_variables
@@ -83,18 +141,54 @@ class MCFGRuleElementInstance:
         self._string_spans = string_spans
 
     def __eq__(self, other: 'MCFGRuleElementInstance') -> bool:
+        """
+        Check if two MCFGRuleElementInstances are equivalent.
+
+        Parameters
+        ----------
+        other : MCFGRuleElementInstance
+            The other MCFGRuleElementInstance to compare with.
+        Returns
+        -------
+        bool
+            True if the two MCFGRuleElementInstances are equivalent, False otherwise.
+        """
         vareq = self._variable == other._variable
         strspaneq = self._string_spans == other._string_spans
         
         return vareq and strspaneq
         
     def to_tuple(self) -> tuple[str, tuple[SpanIndices, ...]]:
+        """
+        Convert the rule element instance to a tuple.
+
+        Returns
+        -------
+        tuple
+            A tuple containing the variable and its string spans.
+        """
         return (self._variable, self._string_spans)
 
     def __hash__(self) -> int:
+        """
+        Return a hash value for the rule element instance.
+
+        Returns
+        -------
+        int
+            Hash value of the MCFGRuleElementInstance.
+        """
         return hash(self.to_tuple())
 
     def __str__(self):
+        """
+        Return a string representation.
+        
+        Returns
+        -------
+        str
+            String representation of the MCFGRuleElementInstance.
+        """
         strspans = ', '.join(
             str(list(stup))
             for stup in self._string_spans
@@ -103,14 +197,37 @@ class MCFGRuleElementInstance:
         return f"{self._variable}({strspans})"
 
     def __repr__(self) -> str:
+        """
+        Return a string representation of the MCFGRuleElementInstance.
+
+        Returns
+        -------
+        str
+            String representation of the MCFGRuleElementInstance.
+        """
         return self.__str__()
     
     @property
     def variable(self) -> str:
+        """
+        Return the variable of the rule element instance.
+
+        Returns
+        -------
+        str
+        """
         return self._variable
 
     @property
     def string_spans(self) -> tuple[SpanIndices, ...]:
+        """
+        Return string spans used in the rule element instance.
+
+        Returns
+        -------
+        tuple of tuple of int
+            Grouped index positions of substrings.
+        """
         return self._string_spans
 
 
@@ -135,15 +252,47 @@ class MCFGRule:
         self._validate()
 
     def to_tuple(self) -> tuple[MCFGRuleElement, tuple[MCFGRuleElement, ...]]:
+        """
+        Convert the rule to a tuple.
+
+        Returns
+        -------
+        tuple
+            A tuple containing the left side and right side elements.
+        """
         return (self._left_side, self._right_side)
 
     def __hash__(self) -> int:
+        """
+        Return a hash value for the rule.
+
+        Returns
+        -------
+        int
+            Hash value of the MCFGRule.
+        """
         return hash(self.to_tuple())
     
     def __repr__(self) -> str:
+        """
+        Return a string representation of the rule.
+
+        Returns
+        -------
+        str
+            String representation of the MCFGRule.
+        """
         return '<Rule: '+str(self)+'>'
         
     def __str__(self) -> str:
+        """
+        Return a string representation of the rule.
+
+        Returns
+        -------
+        str
+            String representation of the MCFGRule.
+        """
         if self.is_epsilon:
             return str(self._left_side)                
 
@@ -153,12 +302,26 @@ class MCFGRule:
                 ' '.join(str(el) for el in self._right_side)
 
     def __eq__(self, other: 'MCFGRule') -> bool:
+        """
+        Check if two MCFGRules are equivalent.
+
+        Parameters
+        ----------
+        other : MCFGRule
+            The other MCFGRule to compare with.
+
+        Returns
+        -------
+        bool
+            True if the two MCFGRules are equivalent, False otherwise.
+        """
         left_side_equal = self._left_side == other._left_side
         right_side_equal = self._right_side == other._right_side
 
         return left_side_equal and right_side_equal
 
     def _validate(self):
+        """Validate the rule"""
         vs = [
             el.unique_string_variables
             for el in self.right_side
@@ -190,18 +353,22 @@ class MCFGRule:
         
     @property
     def left_side(self) -> MCFGRuleElement:
+        """The left side of the rule"""
         return self._left_side
 
     @property
     def right_side(self) -> tuple[MCFGRuleElement, ...]:
+        """The right side of the rule"""
         return self._right_side
 
     @property
     def is_epsilon(self) -> bool:
+        """Check if the rule is an epsilon rule"""
         return len(self._right_side) == 0
 
     @property
     def unique_variables(self) -> set[str]:
+        """Get the unique variables in the rule"""
         return {
             el.variable
             for el in [self._left_side]+list(self._right_side)
@@ -291,6 +458,19 @@ class MCFGRule:
 
     @classmethod
     def from_string(cls, rule_string) -> 'MCFGRule':
+        """
+        Create a rule from a string representation.
+
+        Parameters
+        ----------
+        rule_string : str
+            The string representation of the rule.
+
+        Returns
+        -------
+        MCFGRule
+            The MCFGRule object created from the string.
+        """
         elem_strs = re.findall(r'(\w+)\(((?:\w+,? ?)+?)\)', rule_string)
 
         elem_tuples = [(var, [v.strip()
@@ -324,6 +504,14 @@ class MCFGRule:
             return cls(elem_left, *elems_right)
         
     def string_yield(self):
+        """
+        Get the string yield of the rule.
+
+        Returns
+        -------
+        str
+            The string yield of the rule.
+        """
         if self.is_epsilon:
             return self._left_side.variable
         else:
@@ -374,16 +562,48 @@ class MCFGGrammar:
                 
     @property            
     def alphabet(self) -> set[str]:
+        """
+        The alphabet of the grammar.
+
+        Returns
+        -------
+        set of str
+            The alphabet of the grammar.
+        """
         return self._alphabet
 
     @property    
     def variables(self) -> set[str]:
+        """
+        The variables of the grammar.
+
+        Returns
+        -------
+        set of str
+            The variables of the grammar.
+        """
         return self._variables
     
     @property
     def start_variable(self) -> str:
+        """
+        The start variable of the grammar.
+
+        Returns
+        -------
+        str
+            The start variable of the grammar.
+        """
         return self._start_variable
 
     @property
     def rules(self):
+        """
+        The rules of the grammar.
+
+        Returns
+        -------
+        set of MCFGRule
+            The rules of the grammar.
+        """
         return self._rules

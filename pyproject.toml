@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "agenda_based_mcfg_wchoi18"
-version = "0.0.3"
+version = "0.1.0"
 authors = [
   { name="Woo Jin Choi", email="wchoi18@ur.rochester.edu" },
 ]

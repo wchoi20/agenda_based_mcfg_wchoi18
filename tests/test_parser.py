@@ -16,9 +16,9 @@ class TestMCFGChartEntry:
         assert entry.spans == ((1, 3),)
 
     def test_equality(self):
-        i1 = MCFGRuleElementInstance("X", (0, 2))
-        i2 = MCFGRuleElementInstance("X", (0, 2))
-        i3 = MCFGRuleElementInstance("Y", (0, 2))
+        i1 = MCFGRuleElementInstance("NP", (0, 2))
+        i2 = MCFGRuleElementInstance("NP", (0, 2))
+        i3 = MCFGRuleElementInstance("VP", (0, 2))
         e1 = MCFGChartEntry(i1)
         e2 = MCFGChartEntry(i2)
         e3 = MCFGChartEntry(i3)
@@ -26,12 +26,12 @@ class TestMCFGChartEntry:
         assert e1 != e3
 
     def test_hash(self):
-        i = MCFGRuleElementInstance("A", (0, 1))
+        i = MCFGRuleElementInstance("NP", (0, 1))
         e = MCFGChartEntry(i)
         assert isinstance(hash(e), int)
 
     def test_to_tree(self):
-        i = MCFGRuleElementInstance("A", (0, 1))
+        i = MCFGRuleElementInstance("NP", (0, 1))
         leaf = MCFGChartEntry(i)
         parent = MCFGChartEntry(i, backpointers=[leaf])
         tree = parent.to_tree()
