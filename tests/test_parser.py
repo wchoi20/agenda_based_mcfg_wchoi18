@@ -35,7 +35,7 @@ class TestMCFGChartEntry:
         leaf = MCFGChartEntry(i)
         parent = MCFGChartEntry(i, backpointers=[leaf])
         tree = parent.to_tree()
-        assert tree.data == "A"
+        assert tree.data == "NP"
         assert all(isinstance(child, type(tree)) for child in tree.children)
 
 

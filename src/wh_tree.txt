@@ -1,0 +1,16 @@
+Parsed 1 result(s)
+S
+--Aux
+  --does
+--Swhmain
+  --NP
+    --D
+      --the
+    --N
+      --greyhound
+  --VPwhmain
+    --NPwh
+      --who
+    --Vroot
+      --believe
+

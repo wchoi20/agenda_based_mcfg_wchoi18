@@ -1,5 +1,7 @@
 from agenda_based_mcfg_wchoi18.grammar import MCFGGrammar, MCFGRule, MCFGRuleElement
 from agenda_based_mcfg_wchoi18.parser import AgendaBasedMCFGParser
+from agenda_based_mcfg_wchoi18.tree import Tree
+
 import re
 
 TEST_RULES = """
